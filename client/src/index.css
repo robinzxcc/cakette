@@ -27,7 +27,10 @@ button { cursor: pointer; }
 ::selection { background: #efd7e2; color: var(--cc-ink); }
 
 .font-display { font-family: "Playfair Display", serif; }
-.page-shell { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
+.page-shell { width: min(1180px, calc(100% - 24px)); margin: 0 auto; }
+@media (min-width: 640px) {
+  .page-shell { width: min(1180px, calc(100% - 40px)); }
+}
 
 .soft-card {
   border: 1px solid var(--cc-line);

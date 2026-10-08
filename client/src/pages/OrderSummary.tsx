@@ -4,6 +4,7 @@ import { addOns, designs, fillings, flavors, sizes } from "../data";
 import { api, getApiError } from "../api";
 import { useCakes } from "../hooks/useCakes";
 import LoadingState from "../components/LoadingState";
+import ErrorState from "../components/ErrorState";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useModal } from "../components/Modal";
 
@@ -15,7 +16,7 @@ export default function OrderSummary() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const { show } = useModal();
-  const { cakes, loading } = useCakes();
+  const { cakes, loading, error: cakesError } = useCakes();
   const [error, setError] = useState("");
   const [placing, setPlacing] = useState(false);
 
@@ -67,11 +68,24 @@ export default function OrderSummary() {
       },
     });
 
-  if (loading || !cake) {
+  if (loading) {
     return (
       <section className="py-14">
         <div className="page-shell">
           <LoadingState />
+        </div>
+      </section>
+    );
+  }
+
+  if (cakesError || !cake) {
+    return (
+      <section className="py-14">
+        <div className="page-shell">
+          <ErrorState message={cakesError || "We couldn't find that cake configuration."} />
+          <Link to="/customize" className="btn-secondary mt-6 inline-flex">
+            Back to customize
+          </Link>
         </div>
       </section>
     );

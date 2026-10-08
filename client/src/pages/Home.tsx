@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import CakeCard from "../components/CakeCard";
+import LoadingState from "../components/LoadingState";
+import ErrorState from "../components/ErrorState";
 import { occasions } from "../data";
 import type { Promotion } from "../types";
-import { api } from "../api";
+import { api, getApiError } from "../api";
 import { useCakes } from "../hooks/useCakes";
 import { usePageTitle } from "../hooks/usePageTitle";
 
@@ -15,14 +17,15 @@ const highlights = [
 
 export default function Home() {
   usePageTitle("Home");
-  const { cakes } = useCakes();
+  const { cakes, loading, error } = useCakes();
   const [promotions, setPromotions] = useState<Promotion[]>([]);
+  const [promoError, setPromoError] = useState("");
 
   useEffect(() => {
     api
       .get("/promotions?active=true")
       .then(({ data }) => setPromotions(data.promotions))
-      .catch(() => undefined);
+      .catch((err) => setPromoError(getApiError(err, "Could not load promotions.")));
   }, []);
 
   const popular = cakes.filter((cake) => cake.popular).slice(0, 6);
@@ -34,7 +37,7 @@ export default function Home() {
           <div className="relative z-10">
             <span className="eyebrow-chip">custom cakes · soft details · made for you</span>
             <p className="section-label mt-8">YOUR CELEBRATION, YOUR WAY</p>
-            <h1 className="mt-4 max-w-2xl font-display text-[58px] leading-[.94] tracking-[-0.055em] md:text-[82px]">
+            <h1 className="mt-4 max-w-2xl font-display text-[42px] leading-[.96] tracking-[-0.055em] sm:text-[58px] md:text-[82px]">
               a cake that feels
               <br />
               <span className="italic text-[#d98daa]">like you.</span>
@@ -85,8 +88,26 @@ export default function Home() {
             </div>
             <Link to="/cakes" className="text-sm font-bold text-[#a99ad9]">See all cakes →</Link>
           </div>
-          <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {popular.map((cake) => <CakeCard key={cake.id} cake={cake} />)}
+          <div className="mt-10">
+            {loading ? (
+              <LoadingState />
+            ) : error ? (
+              <ErrorState message={error} />
+            ) : popular.length === 0 ? (
+              <div className="soft-card p-12 text-center">
+                <h2 className="font-display text-3xl">No popular cakes yet.</h2>
+                <p className="mt-2 text-sm text-[#786a76]">Browse the full collection to start customizing.</p>
+                <Link to="/cakes" className="btn-secondary mt-6 inline-flex">
+                  Browse cakes
+                </Link>
+              </div>
+            ) : (
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {popular.map((cake) => (
+                  <CakeCard key={cake.id} cake={cake} />
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -122,20 +143,39 @@ export default function Home() {
             </div>
             <Link to="/promotions" className="text-sm font-bold text-[#a05f7b]">View all offers →</Link>
           </div>
-          <div className="mt-9 grid gap-4 md:grid-cols-3">
-            {promotions.slice(0, 3).map((promo) => (
-              <Link key={promo.id || promo.code} to={`/customize?promo=${promo.code}`} className="soft-card group p-6 hover:-translate-y-1">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-[.16em] text-[#a05f7b]">{promo.code}</p>
-                    <h3 className="mt-2 font-display text-2xl">{promo.title}</h3>
-                  </div>
-                  <span className="rounded-full bg-[#332532] px-3 py-1 text-[10px] font-bold text-white">{promo.label}</span>
-                </div>
-                <p className="mt-4 text-sm leading-6 text-[#786a76]">{promo.description}</p>
-                <p className="mt-5 text-xs font-bold text-[#a05f7b]">Minimum ₱{promo.minimum.toLocaleString()} · Use offer →</p>
-              </Link>
-            ))}
+          <div className="mt-9">
+            {promoError ? (
+              <ErrorState message={promoError} />
+            ) : promotions.length === 0 ? (
+              <div className="soft-card p-10 text-center">
+                <h3 className="font-display text-2xl">No active promotions right now.</h3>
+                <p className="mt-2 text-sm text-[#786a76]">You can still customize a cake at full price.</p>
+              </div>
+            ) : (
+              <div className="grid gap-4 md:grid-cols-3">
+                {promotions.slice(0, 3).map((promo) => (
+                  <Link
+                    key={promo.id || promo.code}
+                    to={`/customize?promo=${promo.code}`}
+                    className="soft-card group p-6 hover:-translate-y-1"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <p className="text-[10px] font-bold uppercase tracking-[.16em] text-[#a05f7b]">{promo.code}</p>
+                        <h3 className="mt-2 font-display text-2xl">{promo.title}</h3>
+                      </div>
+                      <span className="rounded-full bg-[#332532] px-3 py-1 text-[10px] font-bold text-white">
+                        {promo.label}
+                      </span>
+                    </div>
+                    <p className="mt-4 text-sm leading-6 text-[#786a76]">{promo.description}</p>
+                    <p className="mt-5 text-xs font-bold text-[#a05f7b]">
+                      Minimum ₱{promo.minimum.toLocaleString()} · Use offer →
+                    </p>
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </section>

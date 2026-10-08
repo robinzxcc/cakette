@@ -9,8 +9,11 @@ echo ============================================
 echo   cakette defense autostart
 echo ============================================
 echo.
+echo Starts API + Vite, then opens a FEW public tabs.
+echo Login-required pages are NOT auto-opened
+echo   (run open-auth-tabs.bat AFTER you sign in).
+echo.
 
-REM --- check Node ---
 where node >nul 2>&1
 if errorlevel 1 (
   echo [ERROR] Node.js not found. Install from https://nodejs.org
@@ -18,7 +21,6 @@ if errorlevel 1 (
   exit /b 1
 )
 
-REM --- ensure env files ---
 if not exist "server\.env" (
   echo [SETUP] Creating server\.env from server\.env.example ...
   copy /Y "server\.env.example" "server\.env" >nul
@@ -29,29 +31,18 @@ if not exist "client\.env" (
   copy /Y "client\.env.example" "client\.env" >nul
 )
 
-REM --- install deps if missing ---
 if not exist "client\node_modules\" (
   echo [SETUP] Installing client dependencies...
   pushd client
   call npm install
-  if errorlevel 1 (
-    popd
-    echo [ERROR] Client npm install failed.
-    pause
-    exit /b 1
-  )
+  if errorlevel 1 ( popd & echo [ERROR] Client npm install failed. & pause & exit /b 1 )
   popd
 )
 if not exist "server\node_modules\" (
   echo [SETUP] Installing server dependencies...
   pushd server
   call npm install
-  if errorlevel 1 (
-    popd
-    echo [ERROR] Server npm install failed.
-    pause
-    exit /b 1
-  )
+  if errorlevel 1 ( popd & echo [ERROR] Server npm install failed. & pause & exit /b 1 )
   popd
 )
 
@@ -77,7 +68,6 @@ if errorlevel 1 (
   timeout /t 1 /nobreak >nul
   goto wait_api
 )
-
 echo       API is up.
 set /a tries=0
 
@@ -93,33 +83,32 @@ if errorlevel 1 (
   timeout /t 1 /nobreak >nul
   goto wait_vite
 )
-
 echo       Vite is up.
+
 echo.
-echo Opening rubric / defense tabs...
-echo.
+echo Opening 1 browser window with PUBLIC tabs only...
+REM One process + multiple URLs = fewer Edge/Chrome "Sign in" prompts
+where msedge >nul 2>&1
+if not errorlevel 1 (
+  start "" msedge --new-window ^
+    "http://localhost:5173/" ^
+    "http://localhost:5173/cakes" ^
+    "http://localhost:5173/customize" ^
+    "http://localhost:5173/login"
+  goto after_open
+)
+where chrome >nul 2>&1
+if not errorlevel 1 (
+  start "" chrome --new-window ^
+    "http://localhost:5173/" ^
+    "http://localhost:5173/cakes" ^
+    "http://localhost:5173/customize" ^
+    "http://localhost:5173/login"
+  goto after_open
+)
+start "" "http://localhost:5173/"
 
-set "BROWSER="
-where msedge >nul 2>&1 && set "BROWSER=msedge"
-if not defined BROWSER where chrome >nul 2>&1 && set "BROWSER=chrome"
-
-call :open "http://localhost:5173/"
-call :open "http://localhost:5173/cakes"
-call :open "http://localhost:5173/customize"
-call :open "http://localhost:5173/pickup"
-call :open "http://localhost:5173/promotions"
-call :open "http://localhost:5173/reviews"
-call :open "http://localhost:5173/about"
-call :open "http://localhost:5173/login"
-call :open "http://localhost:5173/register"
-call :open "http://localhost:5173/forgot-password"
-call :open "http://localhost:5173/orders"
-call :open "http://localhost:5173/history"
-call :open "http://localhost:5173/profile"
-call :open "http://localhost:5173/dashboard"
-call :open "http://localhost:5173/manage/cakes"
-call :open "http://localhost:5173/manage/promotions"
-
+:after_open
 echo.
 echo ============================================
 echo   READY
@@ -127,30 +116,16 @@ echo ============================================
 echo   App:  http://localhost:5173
 echo   API:  http://localhost:8000/api
 echo.
-echo   Demo logins:
-echo     aya@cakette.test / password123          (customer)
-echo     admin@cakette.test / admin123           (admin)
-echo     magtotomb@students.nu-clark.edu.ph / merner123!
-echo     mernermagtoto55@gmail.com / merner123!
+echo   Opened: Home, Cakes, Customize, Login
 echo.
-echo   Promo code: WELCOME10
+echo   Next steps:
+echo     1. Log in at /login
+echo        admin: magtotomb@students.nu-clark.edu.ph / merner123!
+echo        user:  mernermagtoto55@gmail.com / merner123!
+echo     2. Then run open-auth-tabs.bat  (Studio / orders)
+echo     3. For 404/health: open-error-tabs.bat
 echo.
-echo   Error / 404 tabs are separate — run:
-echo     open-error-tabs.bat
-echo.
-powershell -NoProfile -Command "try { $h = Invoke-RestMethod 'http://localhost:8000/api/health'; Write-Host ('  Mongo mode: ' + $h.database.mode); Write-Host ('  gradingReady: ' + $h.database.gradingReady); if (-not $h.database.gradingReady) { Write-Host ''; Write-Host '  WARNING: Not grading-ready yet.'; Write-Host '  Put Atlas MONGO_URI in server\.env and set ALLOW_MEMORY_FALLBACK=false'; } } catch { Write-Host '  Could not read /api/health' }"
-echo.
-echo Keep the two server windows open during defense.
-echo Close this window anytime — servers keep running.
+powershell -NoProfile -Command "try { $h = Invoke-RestMethod 'http://localhost:8000/api/health'; Write-Host ('  Mongo: ' + $h.database.mode + ' | gradingReady=' + $h.database.gradingReady) } catch { Write-Host '  Could not read /api/health' }"
 echo ============================================
 pause
-exit /b 0
-
-:open
-if defined BROWSER (
-  start "" %BROWSER% "%~1"
-) else (
-  start "" "%~1"
-)
-timeout /t 1 /nobreak >nul
 exit /b 0
