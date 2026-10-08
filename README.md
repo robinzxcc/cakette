@@ -5,7 +5,7 @@ Soft Y2K-inspired custom cake shop — full-stack finals project (React + Expres
 Customers browse cakes, customize size/flavor/filling/design/add-ons, apply promo codes, reserve pickup capacity, and track orders. Studio tools show real data processing against MongoDB.
 
 **Members:** Merner Magtoto, Jhenile Feliciano  
-**Repository:** https://github.com/jhennnl/react-finals  
+**Repository:** https://github.com/robinzxcc/cakette  
 
 > Defense walkthrough: see [`DEFENSE.md`](./DEFENSE.md)
 
