@@ -136,7 +136,7 @@ export default function ManagePromotions() {
         <p className="section-label">STUDIO TOOLS</p>
         <h1 className="mt-3 font-display text-5xl">Manage promotions.</h1>
         <p className="mt-4 max-w-2xl text-[#786a76]">
-          Full CRUD for promo codes with minimum-spend rules used by the quote and validate endpoints.
+          Create and update promo codes, set minimum spend, and turn offers on or off.
         </p>
 
         <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_1.1fr]">

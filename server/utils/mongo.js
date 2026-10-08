@@ -32,10 +32,9 @@ export async function resolveMongoUri(preferredUri) {
     await probe.close();
     return preferredUri;
   } catch (error) {
-    // Only fall back for local URIs so Atlas misconfig fails loudly (required for class).
     if (!isLocalUri(preferredUri)) {
       throw new Error(
-        `Could not connect to MongoDB Atlas (${error.message}). Check MONGO_URI, database user password, and Network Access (0.0.0.0/0 for demos).`
+        `Could not connect to MongoDB (${error.message}). Check MONGO_URI, password, and Network Access.`
       );
     }
 
@@ -45,13 +44,11 @@ export async function resolveMongoUri(preferredUri) {
 
     if (!allowMemory) {
       throw new Error(
-        `Local MongoDB unavailable (${error.message}). Grading mode requires Atlas — set MONGO_URI to mongodb+srv://... and ALLOW_MEMORY_FALLBACK=false.`
+        `MongoDB unavailable (${error.message}). Set MONGO_URI to your Atlas connection string.`
       );
     }
 
-    console.warn(
-      `Local MongoDB unavailable (${error.message}). Falling back to mongodb-memory-server for local demo.`
-    );
+    console.warn(`Local MongoDB unavailable. Using in-memory MongoDB instead.`);
     return startMemoryServer();
   }
 }

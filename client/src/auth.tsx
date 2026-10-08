@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import { api, setUnauthorizedHandler } from "./api";
+import { api, setUnauthorizedHandler, TOKEN_KEY } from "./api";
 
 export type User = {
   id: string;
@@ -28,7 +28,6 @@ type AuthContextValue = {
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
-const TOKEN_KEY = "cakecraftToken";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -41,6 +40,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const restore = async () => {
+      // migrate old token key if present
+      const legacy = localStorage.getItem("cakecraftToken");
+      if (legacy && !localStorage.getItem(TOKEN_KEY)) {
+        localStorage.setItem(TOKEN_KEY, legacy);
+        localStorage.removeItem("cakecraftToken");
+      }
+
       if (!localStorage.getItem(TOKEN_KEY)) {
         setReady(true);
         return;

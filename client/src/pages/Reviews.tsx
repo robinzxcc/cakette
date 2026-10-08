@@ -94,7 +94,7 @@ export default function Reviews() {
         <p className="section-label">SWEET FEEDBACK</p>
         <h1 className="mt-3 font-display text-5xl">Cake reviews.</h1>
         <p className="mt-4 max-w-2xl text-[#786a76]">
-          Ratings and rankings computed by the API — including average scores per cake.
+          Share what you loved, and see which cakes customers rate highest.
         </p>
 
         {loading ? (

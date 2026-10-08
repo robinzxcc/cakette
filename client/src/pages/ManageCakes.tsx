@@ -129,7 +129,7 @@ export default function ManageCakes() {
         <p className="section-label">STUDIO TOOLS</p>
         <h1 className="mt-3 font-display text-5xl">Manage menu.</h1>
         <p className="mt-4 max-w-2xl text-[#786a76]">
-          Full CRUD for cakes stored in MongoDB — create, edit, and delete with validation and confirmation.
+          Add new cakes, update details and stock, or remove items from the menu.
         </p>
 
         <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_1.1fr]">

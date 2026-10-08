@@ -26,8 +26,6 @@ if (!MONGO_URI) {
   process.exit(1);
 }
 
-// Avoid 304/ETag empty bodies — axios treats 304 as an error and the Studio dashboard
-// can look "stuck" if a render throws after a partial/empty payload.
 app.set("etag", false);
 
 const allowedOrigins = new Set(
@@ -86,17 +84,13 @@ connectMongo(MONGO_URI)
   .then(async () => {
     const cakeCount = await Cake.countDocuments();
     if (cakeCount === 0) {
-      console.log(
-        isUsingMemoryMongo()
-          ? "Empty in-memory database detected — running seed..."
-          : "Empty database detected — running seed..."
-      );
+      console.log("Empty database — seeding demo data...");
       await seedDatabase();
     }
     app.listen(PORT, () => {
       console.log(`cakette API running at http://localhost:${PORT}/api`);
       if (isUsingMemoryMongo()) {
-        console.log("Note: using in-memory MongoDB (local demo). For submission, set MONGO_URI to MongoDB Atlas.");
+        console.log("Using in-memory MongoDB (set Atlas MONGO_URI for grading).");
       }
     });
   })

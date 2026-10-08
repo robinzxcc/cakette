@@ -1,7 +1,8 @@
 import axios from "axios";
 
+export const TOKEN_KEY = "caketteToken";
+
 export const api = axios.create({
-  // Prefer same-origin /api (Vite proxy) so dashboard metrics are not blocked by CORS.
   baseURL: import.meta.env.VITE_API_URL || "/api",
   timeout: 15000,
   headers: {
@@ -9,8 +10,6 @@ export const api = axios.create({
     "Cache-Control": "no-cache",
   },
 });
-
-const TOKEN_KEY = "cakecraftToken";
 let onUnauthorized: (() => void) | null = null;
 
 export function setUnauthorizedHandler(handler: (() => void) | null) {

@@ -6,7 +6,6 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
     proxy: {
-      // Pin IPv4 — `localhost` can flap between ::1/127.0.0.1 and stall Studio fetches.
       "/api": {
         target: "http://127.0.0.1:8000",
         changeOrigin: true,

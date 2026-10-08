@@ -82,7 +82,7 @@ export default function Cakes() {
         <SectionHeading
           eyebrow="THE COLLECTION"
           title="Find a starting point that feels like you."
-          description="Search and filter run through GET /cakes/search so results come from MongoDB processing, not only local filtering."
+          description="Search by name, filter by collection, and sort by price or popularity."
         />
 
         <div className="mt-9 grid gap-4 sm:grid-cols-3">
@@ -153,7 +153,7 @@ export default function Cakes() {
                 </p>
               </div>
               <span className="hidden text-xs text-[#786a76] sm:block">
-                Powered by /cakes/search
+                Live catalog results
               </span>
             </div>
 
